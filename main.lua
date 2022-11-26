@@ -63,11 +63,25 @@ end
 
 function BeginContact(a, b, collision)
 
-    for i = 1, table.getn(repairKits), 1 do
-        if repairKits[i] ~= nil and player ~= nil and Repairkit_contact(a, b, collision, repairKits[i], player) then 
-            return 
-        end
-    end
+	-- Do Kit Collision Check And Reaction
+	if (IsPlayerCollidingWithRepairKit(a, b)) then
+		--io.write ("\n"..a:getUserData().." colliding with "..b:getUserData().."\n")
+
+		local kitFixture
+		if a:getUserData() == "kit" then
+			kitFixture = a 
+		else kitFixture = b end
+		
+		local repairKit = FindRepairKitFromBody( kitFixture )
+		
+		if repairKit == nil then
+			io.write("\nFailed To Find The Repair Kit! Did you forget to clean up the body/fixutre?") 
+			return 
+		end
+		
+		Repairkit_contact(a, b, collision, repairKit, player)
+
+	end
 
 	--if Repairkit_contact(a, b, collision, repairKit, player) then return end
     Player_beginContact(a, b, collision, player)
@@ -80,4 +94,24 @@ end
 function love.keypressed(key)
     Player_jump(key, player)
     Player_dash(key, player)
+end
+
+function IsPlayerCollidingWithRepairKit(bodyA, bodyB)
+
+	return (bodyA:getUserData() == "kit" and bodyB:getUserData() == "player") or (bodyA:getUserData() == "player" and bodyB:getUserData() == "kit")
+
+end
+
+function FindRepairKitFromBody(Fixture)
+
+	for i = 1, #repairKits, 1 do
+		
+		if repairKits[i] ~= nil and repairKits[i].fixture == Fixture then
+			return repairKits[i]
+		end
+	
+	end
+
+	return nil
+
 end

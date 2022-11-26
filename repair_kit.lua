@@ -22,11 +22,11 @@ end
 
 
 function Repairkit_contact(a, b, collision, repairkit, player)
-    if a:getUserData("kit") and b:getUserData("player") or a:getUserData("player") and b:getUserData("kit") then
+    --if (a:getUserData("kit") and b:getUserData("player")) or (a:getUserData("player") and b:getUserData("kit")) then
         player.health = player.health + 1
         repairkit.disappear = true
         return true
-    end
+    --end
 end
 
 -- Seperated The Checking If You Can Destroy From The Actual Body Destruciton For Clarity
