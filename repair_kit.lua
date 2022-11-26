@@ -9,28 +9,55 @@ function Createkit(World, x, y, width, height)
     return repairkit
 end
 
-function DrawRepairKit(repairkit)
-        for i = 1, #repairkit, 1 do
-                love.graphics.setColor(1, 0, 0)
-                love.graphics.polygon("fill", repairkit[i].body:getWorldPoints(repairkit[i].shape:getPoints())) 
-            end
+function DrawRepairKits(repairkit)
+    for i = 1, #repairkit, 1 do
+        local currentRepairKit = repairkit[i]
+
+        if currentRepairKit ~= nil then
+            love.graphics.setColor(1, 0, 0)
+            love.graphics.polygon("fill", currentRepairKit.body:getWorldPoints(currentRepairKit.shape:getPoints())) 
         end
+    end
+end
 
 
 function Repairkit_contact(a, b, collision, repairkit, player)
-        if a:getUserData("kit") and b:getUserData("player") or a:getUserData("player") and b:getUserData("kit") then
-            player.health = player.health + 1
-            repairkit.disappear = true
-            return true
-        end
+    if a:getUserData("kit") and b:getUserData("player") or a:getUserData("player") and b:getUserData("kit") then
+        player.health = player.health + 1
+        repairkit.disappear = true
+        return true
+    end
+end
+
+-- Seperated The Checking If You Can Destroy From The Actual Body Destruciton For Clarity
+function CanDestroyRepairKit(repairkit)
+    if repairkit == nil then
+        return false;
     end
 
-function CheckRemove_Kit(repairkit)
-    if repairkit.disappear == true and not repairkit.body == nil then
+    return repairkit.disappear
+end
+
+-- Do The Actual Destruction Of The Body
+function DestroyRepairKitBody(repairkit)
+
+    if repairkit ~= nil and repairkit.body ~= nil then
         repairkit.body:destroy()
+    end
+
+end
+
+
+--[[ Substituted It With The Above 2 Functions
+function CheckRemove_Kit(repairkit)
+    if repairkit.disappear == true then
         table.remove(repairkit, 1)
+		if repairkit.body ~= nil then
+			repairkit.body:destroy()
+		end
     end 
 end
+]]
 
 function Remove_Kit(repairkit)
     for i = 1, #repairkit, 1 do
