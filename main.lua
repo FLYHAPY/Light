@@ -48,6 +48,7 @@ function love.draw()
     DrawAttack(attack)
     love.graphics.pop()
 
+    love.graphics.print(player.health, 10, 10)
 
 end
 
