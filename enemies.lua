@@ -25,8 +25,6 @@ function Drawenemie1(enemie1)
     end
 end
 
-function Detect_Player(enemie1, player)
-    if player.x - enemie1.x < enemie1.viewrange then
-        enemie1.playerdetect = true
-    end
+function AttackPlayer(a, b, collision, enemie1, player)
+    player.health = player.health - 1
 end

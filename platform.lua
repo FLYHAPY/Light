@@ -3,7 +3,8 @@ function CreatePlatform(world, x, y, width, height)
     platform.body = love.physics.newBody(world, x, y, "static")
     platform.shape = love.physics.newRectangleShape(width, height)
     platform.fixture = love.physics.newFixture(platform.body, platform.shape, 1)
-    platform.fixture:getUserData("platform")
+    platform.tag = "platform"
+    platform.fixture:setUserData(platform)
     return platform
 end
 

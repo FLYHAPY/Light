@@ -2,12 +2,14 @@ require "player"
 require "repair_kit"
 require "platform"
 require "enemies"
+require "vector2"
 
 local STI = require("sti")
 local player
 local repairKits -- Renamed to plural to make it clear its multiple repair kits (aka an array)
 local level1
 local enemie1
+local attack
 
 function love.load() 
     World = love.physics.newWorld(0,0)
@@ -29,17 +31,21 @@ function love.load()
     enemie1 = {}
     enemie1[1] = Load_Enemie1(World, 1200, 350)
 
+    attack = LoadAttack(World, player)
+
 end
 
 function love.draw()
+    local playerposition = vector2.new(player.body:getPosition())
     love.graphics.push()
-    love.graphics.translate(-player.x + 380, 0)
+    love.graphics.translate(-playerposition.x  + 380, 0)
     
-    Player_draw(player)
+    DrawPlayer(player)
 
     DrawLevel(level1)
     DrawRepairKits(repairKits)
     Drawenemie1(enemie1)
+    DrawAttack(attack)
     love.graphics.pop()
 
 
@@ -48,7 +54,9 @@ end
 
 function love.update(dt)
     World:update(dt)
-    Player_update(player, dt)
+    UpdatePlayer(player, dt)
+    Player_dashagain(player, dt)
+    
 
     -- Update All Repair Kits
     for i = 1, #repairKits, 1 do
@@ -58,7 +66,7 @@ function love.update(dt)
         end
     end
 
-    io.write(player.health)
+    --io.write(player.health)
 end
 
 function BeginContact(a, b, collision)
@@ -83,22 +91,40 @@ function BeginContact(a, b, collision)
 
 	end
 
+    -- collision of enemy
+    
+    if IsPlayerCollidingWithEnemy(a, b) then
+        AttackPlayer(a, b, collision, enemie1, player)
+    end
+
 	--if Repairkit_contact(a, b, collision, repairKit, player) then return end
-    Player_beginContact(a, b, collision, player)
+    BeginContactPlayer(a, b, collision, player)
 end
 
-function EndContact(a, b, collision)
-	Player_endContact(a, b, collision, player)
+function EndContact(fixtureA, fixtureB, contact)
+    if (fixtureA:getUserData().tag == "player" and 
+       fixtureB:getUserData().tag == "platform") or 
+       (fixtureA:getUserData().tag == "platform" and 
+       fixtureB:getUserData().tag == "player") then
+        player.onground = false
+        player.collisionnormal = vector2.new(0, 0)
+    end
 end
+
+function love.keyreleased(key)
+    KeyReleasedPlayer(key, player)
+ end
+
 
 function love.keypressed(key)
-    Player_jump(key, player)
-    Player_dash(key, player)
+    UpdateAttack(key, attack)
 end
+
+--repairkit
 
 function IsPlayerCollidingWithRepairKit(bodyA, bodyB)
 
-	return (bodyA:getUserData() == "kit" and bodyB:getUserData() == "player") or (bodyA:getUserData() == "player" and bodyB:getUserData() == "kit")
+	return (bodyA:getUserData() == "kit" and bodyB:getUserData().tag == "player") or (bodyA:getUserData().tag == "player" and bodyB:getUserData() == "kit")
 
 end
 
@@ -113,5 +139,14 @@ function FindRepairKitFromBody(Fixture)
 	end
 
 	return nil
+
+end
+
+--enemy
+
+
+function IsPlayerCollidingWithEnemy(bodyA, bodyB)
+
+	return (bodyA:getUserData() == "enemie1" and bodyB:getUserData().tag == "player") or (bodyA:getUserData().tag == "player" and bodyB:getUserData() == "enemie1")
 
 end
