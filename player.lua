@@ -43,13 +43,13 @@ function UpdatePlayer(player, dt)
     end
 
     if love.keyboard.isDown("q") and player.dashtimer < 0.25 and player.candash == true  and player.dir == 1 then
-        local dashforce = vector2.new(1900, 0)
+        local dashforce = vector2.new(2100, 0)
         player.body:applyLinearImpulse(dashforce.x, dashforce.y)
         player.isdash = true
     end
 
     if love.keyboard.isDown("q") and player.dashtimer < 0.25  and player.candash == true and player.dir == -1 then
-        local dashforce = vector2.new(-1500, 0)
+        local dashforce = vector2.new(-2100, 0)
         player.body:applyLinearImpulse(dashforce.x, dashforce.y)
         player.isdash = true
     end
@@ -58,7 +58,7 @@ function UpdatePlayer(player, dt)
         player.dashtimer = player.dashtimer + dt
     end
 
-    if player.dashtimer >= 0.25 then
+    if player.dashtimer >= 0.05 then
         player.candash = false
         player.isdash = false
     end
