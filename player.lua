@@ -16,8 +16,7 @@ function Player_load(World, x, y)
         player.dashtimer = 0
         player.dashduration = 0.25
         player.isdash = false
-        player.totaldash = 500
-        player.xvelo = 0
+        player.candash = false
         return player
 end
 
@@ -31,32 +30,42 @@ function UpdatePlayer(player, dt)
         player.dir = 1
     elseif love.keyboard.isDown("left") and player.collisionnormal.x ~= -1 then
         player.body:setLinearVelocity(-300, playervelocity.y)
-        player.dir = 0
+        player.dir = -1
     else
         player.body:setLinearVelocity(0, playervelocity.y)
     end
 
-    if love.keyboard.isDown("space") and player.jumped == false and
-       player.onground == true then
+    if love.keyboard.isDown("space") and player.jumped == false and player.onground == true then
         local jumpForce = vector2.new(0, -1200)
         player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
         player.jumped = true
         --player.onground = false
     end
 
-    if love.keyboard.isDown("q") and player.dashtimer <= 0  and player.isdash == false and player.dir == 1 then
-        local dashforce = vector2.new(1500, 0)
+    if love.keyboard.isDown("q") and player.dashtimer < 0.25 and player.candash == true  and player.dir == 1 then
+        local dashforce = vector2.new(1900, 0)
         player.body:applyLinearImpulse(dashforce.x, dashforce.y)
         player.isdash = true
-        player.dashtimer = player.dashduration
     end
 
-    if love.keyboard.isDown("q") and player.dashtimer <= 0  and player.isdash == false and player.dir == 0 then
-        local dashforce = vector2.new(1500, 0)
-        player.body:applyLinearImpulse(-dashforce.x, dashforce.y)
+    if love.keyboard.isDown("q") and player.dashtimer < 0.25  and player.candash == true and player.dir == -1 then
+        local dashforce = vector2.new(-1500, 0)
+        player.body:applyLinearImpulse(dashforce.x, dashforce.y)
         player.isdash = true
-        player.dashtimer = player.dashduration
     end
+
+    if player.isdash == true then
+        player.dashtimer = player.dashtimer + dt
+    end
+
+    if player.dashtimer >= 0.25 then
+        player.candash = false
+        player.isdash = false
+    end
+    if player.isdash == false then
+        player.candash = true
+    end
+
 
     local contacts = player.body:getContacts()
     if #contacts == 0 then
@@ -70,6 +79,7 @@ function UpdatePlayer(player, dt)
             end
         end
     end
+    io.write(player.dashtimer,  " \n")
 end
 
 function BeginContactPlayer(fixtureA, fixtureB, contact, player)
@@ -83,25 +93,20 @@ function BeginContactPlayer(fixtureA, fixtureB, contact, player)
 end
 
 
-    function DrawPlayer(player)
-        love.graphics.setColor(1, 0, 0)
-        love.graphics.polygon("fill", player.body:getWorldPoints(player.shape:getPoints()))
-    end
+ function DrawPlayer(player)
+     love.graphics.setColor(1, 0, 0)
+     love.graphics.polygon("fill", player.body:getWorldPoints(player.shape:getPoints()))
+ end
 
-    function KeyReleasedPlayer(key, player)
-        if key == "up" then
-            player.jumped = false
-        end
-    end
-
-
-
-function Player_dashagain(player, dt)
-    if player.dashtimer > 0 then
-        player.dashtimer = player.dashtimer - dt
-        player.isdash = false
-    end
-end
+function KeyReleasedPlayer(key, player)
+     if key == "space" then
+         player.jumped = false
+     end
+     if key == "q" then
+        player.dashtimer = 0
+     end
+ end
+ 
 
 function LoadAttack(World, player)
     local attack = {}

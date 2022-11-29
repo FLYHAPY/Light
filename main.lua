@@ -55,7 +55,6 @@ end
 function love.update(dt)
     World:update(dt)
     UpdatePlayer(player, dt)
-    Player_dashagain(player, dt)
     
 
     -- Update All Repair Kits
