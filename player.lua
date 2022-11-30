@@ -17,11 +17,12 @@ function Player_load(World, x, y)
         player.dashduration = 0.25
         player.isdash = false
         player.candash = false
+        player.attacks = false
         return player
 end
 
 function UpdatePlayer(player, dt)
-    local playergravity = vector2.new(0, 1100)
+    local playergravity = vector2.new(0, 2500)
     player.body:applyForce(playergravity.x, playergravity.y)
     local playervelocity = vector2.new(player.body:getLinearVelocity())
 
@@ -36,7 +37,7 @@ function UpdatePlayer(player, dt)
     end
 
     if love.keyboard.isDown("space") and player.jumped == false and player.onground == true then
-        local jumpForce = vector2.new(0, -1200)
+        local jumpForce = vector2.new(0, -1500)
         player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
         player.jumped = true
         --player.onground = false
@@ -94,7 +95,7 @@ end
 
 
  function DrawPlayer(player)
-     love.graphics.setColor(1, 0, 0)
+     love.graphics.setColor(0, 0, 1)
      love.graphics.polygon("fill", player.body:getWorldPoints(player.shape:getPoints()))
  end
 
@@ -108,30 +109,25 @@ function KeyReleasedPlayer(key, player)
  end
  
 
-function LoadAttack(World, player)
+--[[function LoadAttack(World, player)
     local attack = {}
     attack.body = love.physics.newBody(World, player.body:getX(), player.body:getY(), "dynamic")
     attack.body:setFixedRotation(true)
     attack.shape = love.physics.newRectangleShape(30, 10)
-    attack.fixture = love.physics.newFixture(player.body, attack.shape)
+    attack.fixture = love.physics.newFixture(attack.body, attack.shape)
     attack.fixture:setUserData("attack")
     attack.fixture:setSensor(true)
-    attack.attacking = false
     return attack
 end
 
-function DrawAttack(attack)
-    if attack.attacking == true then
+function DrawAttack(attack, player)
+    if player.attacks == true then
         love.graphics.polygon("fill", attack.body:getWorldPoints(attack.shape:getPoints()))
     end
 end
 
-function UpdateAttack(key, attack)
+function UpdateAttack(key, attack, player)
     if key == "f" then
-        attack.attacking = true
+        player.attacks = true
     end
-end
-
---[[function AttackLocation(attack, player)
-    attack.body:setLinearVelocity(player.xvelo, player.yvelo)
-end--]]
+end]]--

@@ -23,15 +23,17 @@ function love.load()
     level1[1] = CreatePlatform(World, 400, 575, 700, 50)
     level1[2] = CreatePlatform(World, 400, 420, 100, 30)
     level1[3] = CreatePlatform(World, 1200, 575, 600, 50)
+    level1[4] = CreatePlatform(World, 900, 525, 20, 50)
+    level1[5] = CreatePlatform(World, 1500, 525, 20, 50)
 
     repairKits = {}
     repairKits[1] = Createkit(World, 500, 400, 50, 50)
     repairKits[2] = Createkit(World, 700, 400, 20, 20)
 
     enemie1 = {}
-    enemie1[1] = Load_Enemie1(World, 1200, 350)
+    enemie1[1] = Load_enemy(World, 1200, 350)
 
-    attack = LoadAttack(World, player)
+    --attack = LoadAttack(World, player)
 
 end
 
@@ -44,8 +46,8 @@ function love.draw()
 
     DrawLevel(level1)
     DrawRepairKits(repairKits)
-    Drawenemie1(enemie1)
-    DrawAttack(attack)
+    Drawenemy(enemie1)
+    --DrawAttack(attack, player)
     love.graphics.pop()
 
     love.graphics.print(player.health, 10, 10)
@@ -56,6 +58,7 @@ end
 function love.update(dt)
     World:update(dt)
     UpdatePlayer(player, dt)
+    Updateenemy(enemie1, dt)
     
 
     -- Update All Repair Kits
@@ -97,6 +100,8 @@ function BeginContact(a, b, collision)
         AttackPlayer(a, b, collision, enemie1, player)
     end
 
+    BeginContactEnemy(a, b, collision)
+
 	--if Repairkit_contact(a, b, collision, repairKit, player) then return end
     BeginContactPlayer(a, b, collision, player)
 end
@@ -117,7 +122,7 @@ function love.keyreleased(key)
 
 
 function love.keypressed(key)
-    UpdateAttack(key, attack)
+    --UpdateAttack(key, attack, player)
 end
 
 --repairkit
@@ -147,6 +152,6 @@ end
 
 function IsPlayerCollidingWithEnemy(bodyA, bodyB)
 
-	return (bodyA:getUserData() == "enemie1" and bodyB:getUserData().tag == "player") or (bodyA:getUserData().tag == "player" and bodyB:getUserData() == "enemie1")
+	return (bodyA:getUserData().tag == "enemy" and bodyB:getUserData().tag == "player") or (bodyA:getUserData().tag == "player" and bodyB:getUserData().tag == "enemy")
 
 end
