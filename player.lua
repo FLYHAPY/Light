@@ -11,13 +11,19 @@ function Player_load(World, x, y)
         player.jumped = false
         player.onground = false
         player.collisionnormal = vector2.new(0, 0)
-        player.health = 2
+        player.health = 10
         player.dir = 1
         player.dashtimer = 0
         player.dashduration = 0.25
         player.isdash = false
         player.candash = false
         player.attacks = false
+        player.SSM = 0
+        player.SSMact = false
+        player.SSMtimer = 20
+        player.SSMfinished = false
+        player.died = false
+        player.restart = false
         return player
 end
 
@@ -67,7 +73,6 @@ function UpdatePlayer(player, dt)
         player.candash = true
     end
 
-
     local contacts = player.body:getContacts()
     if #contacts == 0 then
         player.onground = false
@@ -80,8 +85,40 @@ function UpdatePlayer(player, dt)
             end
         end
     end
-    io.write(player.dashtimer,  " \n")
+    --io.write(player.dashtimer,  " \n")
+
+    --SSM
+    
+    if love.keyboard.isDown("0") then
+        player.SSM = player.SSM + 1
+    end
+    if player.SSMact == true then
+        player.SSMtimer = player.SSMtimer -dt
+    end
+
+    if player.SSMtimer <= 0 then
+        player.SSMtimer = 20
+        player.SSMact = false
+        player.SSM = 0
+        player.SSMfinished = true
+    end
+
+    if player.health <=0 then
+        player.died = true
+    end
+
+    io.write(player.SSMtimer,  " \n")
 end
+
+
+function KeyPressedSSM(key, player, attack)
+    if key == "e" and player.SSM >= 10 and player.SSMtimer >= 20 then
+       player.SSMact = true
+       attack.damage = attack.damage * 2
+       player.health = player.health * 2
+    end
+end
+
 
 function BeginContactPlayer(fixtureA, fixtureB, contact, player)
     if (fixtureA:getUserData().tag == "player" and fixtureB:getUserData().tag == "platform") or (fixtureA:getUserData().tag == "platform" and fixtureB:getUserData().tag == "player") then
@@ -95,8 +132,11 @@ end
 
 
  function DrawPlayer(player)
-     love.graphics.setColor(0, 0, 1)
-     love.graphics.polygon("fill", player.body:getWorldPoints(player.shape:getPoints()))
+    if player.SSMact == true then
+        love.graphics.setColor(1, 1, 1) 
+    else  love.graphics.setColor(0, 0, 1)
+    end
+    love.graphics.polygon("fill", player.body:getWorldPoints(player.shape:getPoints()))
  end
 
 function KeyReleasedPlayer(key, player)
@@ -109,14 +149,20 @@ function KeyReleasedPlayer(key, player)
  end
  
 
---[[function LoadAttack(World, player)
+function LoadAttack(World, player)
     local attack = {}
-    attack.body = love.physics.newBody(World, player.body:getX(), player.body:getY(), "dynamic")
+    attack.body = love.physics.newBody(World, player.body:getX(), player.body:getY(), "kinematic")
     attack.body:setFixedRotation(true)
-    attack.shape = love.physics.newRectangleShape(30, 10)
+    attack.body:setActive(false)
+    attack.shape = love.physics.newRectangleShape(50, 10)
     attack.fixture = love.physics.newFixture(attack.body, attack.shape)
-    attack.fixture:setUserData("attack")
+    attack.fixture:setUserData(attack)
+    attack.tag = "attack"
     attack.fixture:setSensor(true)
+    attack.timer = 0
+    attack.duration = 0.50
+    attack.damage = 4
+    attack.disappear = false
     return attack
 end
 
@@ -126,8 +172,46 @@ function DrawAttack(attack, player)
     end
 end
 
-function UpdateAttack(key, attack, player)
-    if key == "f" then
+function StartAttack(attack, player)
+    if attack.timer <= 0.25 then
         player.attacks = true
+        attack.body:setActive(true)
     end
-end]]--
+end
+
+function UpdateAttack(attack, player, dt)
+    local posx, posy = player.body:getPosition()
+    if player.dir == 1 then
+        posx = posx + 20
+    else
+        posx = posx - 20
+    end
+    attack.body:setPosition(posx, posy)
+
+    if player.attacks == true then
+        attack.timer = attack.timer + dt
+    end
+    
+    if attack.timer >= 0.25 then
+        player.attacks = false
+        attack.timer = 0
+        attack.body:setActive(false)
+    end
+end
+
+function AttackReellease(key, attack, player)
+    if key == "f" then
+        attack.timer = 0
+        player.attacks = false
+        attack.body:setActive(false)
+    end
+end
+
+function UpdateSSM(player, attack)
+    if player.SSMfinished == true then
+        attack.damage = 4
+        player.health = player.health / 2
+        player.SSMfinished = false
+    end
+end
+

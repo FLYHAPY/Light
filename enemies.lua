@@ -14,28 +14,30 @@ function Load_enemy(World, x, y)
     enemy.width = 60
     enemy.height = 60
     enemy.health = 10
-    enemy.attackdamage= 60
+    enemy.attackdamage = 4
     enemy.viewrange = 170
     enemy.playerdetect = false
     enemy.colideplayer = false
+    enemy.health = 10
     return enemy
 end
 
 
-function Drawenemy(enemy)
+function DrawEnemy(enemy)
     love.graphics.setColor(0, 1, 1)
     for i = 1, #enemy, 1 do
-        if enemy[i].colideplayer == false then
+        local currentEnemy = enemy[i]
+        if currentEnemy ~= nil then
             love.graphics.polygon("fill", enemy[i].body:getWorldPoints(enemy[i].shape:getPoints()))
         end
     end
 end
 
 function AttackPlayer(a, b, collision, enemy, player)
-    player.health = player.health - 1
+    player.health = player.health - 4
 end
 
-function Updateenemy(enemy, dt)
+function UpdateEnemy(enemy, dt)
     for i = 1, #enemy, 1 do
             local enemygravity = vector2.new(0, 2500)
             enemy[i].body:applyForce(enemygravity.x, enemygravity.y)
@@ -57,4 +59,29 @@ function BeginContactEnemy(fixtureA, fixtureB, contact)
     elseif (fixtureA:getUserData().tag == "platform" and fixtureB:getUserData().tag == "enemy") then
         fixtureB:getUserData().collisionnormal = vector2.new(contact:getNormal())
     end   
+end
+
+function Enemy_contact(a, b, collision, enemy, attack)
+        enemy.health = enemy.health - attack.damage
+        enemy.disappear = true
+        return true
+end
+
+-- Seperated The Checking If You Can Destroy From The Actual Body Destruciton For Clarity
+function CanDestroyEnemy(enemy)
+    if enemy == nil then
+        return false;
+    end
+
+    return enemy.disappear
+end
+
+-- Do The Actual Destruction Of The Body
+function DestroyEnemyBody(enemy, player)
+
+    if enemy ~= nil and enemy.body ~= nil then
+        enemy.body:destroy()
+        player.SSM = player.SSM + 1
+    end
+
 end

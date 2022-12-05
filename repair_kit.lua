@@ -3,7 +3,8 @@ function Createkit(World, x, y, width, height)
     repairkit.body = love.physics.newBody(World, x, y, "static")
     repairkit.shape = love.physics.newRectangleShape(width, height)
     repairkit.fixture = love.physics.newFixture(repairkit.body, repairkit.shape)
-    repairkit.fixture:setUserData("kit")
+    repairkit.tag = "kit"
+    repairkit.fixture:setUserData(repairkit)
     repairkit.fixture:setSensor(true)
     repairkit.disappear = false
     return repairkit
@@ -57,14 +58,4 @@ function CheckRemove_Kit(repairkit)
 		end
     end 
 end
-]]
-
-function Remove_Kit(repairkit)
-    for i = 1, #repairkit, 1 do
-        if repairkit == 1 then
-            table.remove(repairkit, i)
-            repairkit.body:destroy()
-        end
-    end
-end
-    
+]]  
