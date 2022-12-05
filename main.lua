@@ -64,14 +64,15 @@ function love.draw()
     love.graphics.pop()
 
     love.graphics.setColor(0.5, 0.5, 0) 
-    love.graphics.print("Health:".. player.health, 10, 10)
+    love.graphics.print("Health:".. player.health, 10, 10, 0, 1.5, 1.5)
     love.graphics.setColor(1, 1, 1) 
-    love.graphics.print("SSM Gauge:"..player.SSM, 10, 25)
-    love.graphics.print("SSM Gauge Timer:"..math.floor(player.SSMtimer), 10, 40)
+    love.graphics.print("SSM Gauge: "..player.SSM, 10, 28, 0, 1.5, 1.5)
+    love.graphics.print("SSM Gauge Timer: "..math.floor(player.SSMtimer), 10, 45, 0, 1.5, 1.5)
+    love.graphics.setDefaultFilter("nearest")
 
     if player.died == true then
         love.graphics.setColor(1, 1, 1) 
-        love.graphics.print("game over", 500, 300)
+        love.graphics.print("Game Over", 500, 300, 0, 1.5, 1.5)
     end
     
 
