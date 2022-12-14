@@ -16,7 +16,6 @@ local attack
 local spikes
 local key
 local door
-local specialdoor
 
 function love.load() 
     World = love.physics.newWorld(0,0)
@@ -56,8 +55,6 @@ function love.load()
 
     door = Createdoor(World, -500, 300, 100, 100)
 
-    specialdoor = CreateSpecialspecialdoor(World, 550, 500, 50, 50)
-
 end
 
 function love.draw()
@@ -73,7 +70,6 @@ function love.draw()
     DrawAttack(attack, player)
     Drawspikes(spikes)
     Drawkey(key, player)
-    Drawspecialdoor(specialdoor)
     love.graphics.pop()
 
     love.graphics.setColor(0.5, 0.5, 0) 
@@ -195,8 +191,6 @@ function BeginContact(a, b, collision)
     BeginContactkey(a, b, collision, key, player)
 
     BeginContactdoor(a, b, collision, door, player, key)
-
-    BeginContactspecialdoor(a, b, collision, player)
 
 	--if Repairkit_contact(a, b, collision, repairKit, player) then return end
     BeginContactPlayer(a, b, collision, player)
