@@ -27,7 +27,7 @@ function DrawEnemy(enemy)
     love.graphics.setColor(0, 1, 1)
     for i = 1, #enemy, 1 do
         local currentEnemy = enemy[i]
-        if currentEnemy ~= nil then
+        if currentEnemy ~= nil and currentEnemy.body ~= nil and currentEnemy.shape ~= nil  then
             love.graphics.polygon("fill", enemy[i].body:getWorldPoints(enemy[i].shape:getPoints()))
         end
     end
@@ -39,6 +39,7 @@ end
 
 function UpdateEnemy(enemy, dt)
     for i = 1, #enemy, 1 do
+        if enemy[i] ~= nil and enemy[i].body ~= nil  then
             local enemygravity = vector2.new(0, 2500)
             enemy[i].body:applyForce(enemygravity.x, enemygravity.y)
         
@@ -49,6 +50,7 @@ function UpdateEnemy(enemy, dt)
         local enemyvelocity = vector2.new(enemy[i].body:getLinearVelocity())
         enemy[i].body:setLinearVelocity(100 * enemy[i].direction, enemyvelocity.y)
 
+        end
     end
 end
 
@@ -82,6 +84,7 @@ function DestroyEnemyBody(enemy, player)
     if enemy ~= nil and enemy.body ~= nil then
         enemy.body:destroy()
         player.SSM = player.SSM + 1
+        enemy.body = nil
     end
 
 end

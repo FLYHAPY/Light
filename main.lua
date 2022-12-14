@@ -4,6 +4,8 @@ require "platform"
 require "enemies"
 require "vector2"
 require "spikes"
+require "key"
+require "door"
 
 local STI = require("sti")
 local player
@@ -12,6 +14,9 @@ local level1
 local enemy1
 local attack
 local spikes
+local key
+local door
+local specialdoor
 
 function love.load() 
     World = love.physics.newWorld(0,0)
@@ -47,6 +52,12 @@ function love.load()
     spikes[1] = Createspikes(World, -850, 560, 70, 30)
     spikes[2] = Createspikes(World, -750, 560, 70, 30)
 
+    key = Createkey(World, -700, 200, 20, 20)
+
+    door = Createdoor(World, -500, 300, 100, 100)
+
+    specialdoor = CreateSpecialspecialdoor(World, 550, 500, 50, 50)
+
 end
 
 function love.draw()
@@ -55,12 +66,14 @@ function love.draw()
     love.graphics.translate(-playerposition.x  + 380, 0)
     
     DrawPlayer(player)
-
+    Drawdoor(door, player)
     DrawLevel(level1)
     DrawRepairKits(repairKits)
     DrawEnemy(enemy1)
     DrawAttack(attack, player)
     Drawspikes(spikes)
+    Drawkey(key, player)
+    Drawspecialdoor(specialdoor)
     love.graphics.pop()
 
     love.graphics.setColor(0.5, 0.5, 0) 
@@ -73,6 +86,10 @@ function love.draw()
     if player.died == true then
         love.graphics.setColor(1, 1, 1) 
         love.graphics.print("Game Over", 500, 300, 0, 1.5, 1.5)
+    end
+
+    if player.canopendoor == true then
+        love.graphics.print("Key Colected", 1000, 20, 0, 1.5, 1.5)
     end
     
 
@@ -102,16 +119,16 @@ function love.update(dt)
     for i = 1, #repairKits, 1 do
         if CanDestroyRepairKit(repairKits[i]) then
             DestroyRepairKitBody(repairKits[i])
-            repairKits[i] = nil
-            table.remove(repairKits, i)
+            --repairKits[i] = nil
+            --table.remove(repairKits, i)
         end
     end
 
     for i = 1, #enemy1, 1 do
         if CanDestroyEnemy(enemy1[i]) and enemy1[i].health <= 0 then
             DestroyEnemyBody(enemy1[i], player)
-            enemy1[i] = nil
-            table.remove(enemy1, i)
+            --enemy1[i] = nil
+            --table.remove(enemy1, i)
         end
     end
 end
@@ -174,6 +191,12 @@ function BeginContact(a, b, collision)
     end
 
     BeginContactEnemy(a, b, collision)
+
+    BeginContactkey(a, b, collision, key, player)
+
+    BeginContactdoor(a, b, collision, door, player, key)
+
+    BeginContactspecialdoor(a, b, collision, player)
 
 	--if Repairkit_contact(a, b, collision, repairKit, player) then return end
     BeginContactPlayer(a, b, collision, player)

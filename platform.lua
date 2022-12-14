@@ -11,7 +11,6 @@ end
 function DrawLevel(level)
     love.graphics.setColor(0, 1, 0)
     for i = 1, #level, 1 do
-        love.graphics.polygon("fill", 
-                          level[i].body:getWorldPoints(level[i].shape:getPoints()))
+        love.graphics.polygon("fill", level[i].body:getWorldPoints(level[i].shape:getPoints()))
     end
 end

@@ -24,6 +24,7 @@ function Player_load(World, x, y)
         player.SSMfinished = false
         player.died = false
         player.restart = false
+        player.canopendoor = false
         return player
 end
 
@@ -107,7 +108,7 @@ function UpdatePlayer(player, dt)
         player.died = true
     end
 
-    io.write(player.SSMtimer,  " \n")
+    --io.write(player.SSMtimer,  " \n")
 end
 
 

@@ -11,8 +11,7 @@ end
 function Drawspikes(spikes)
     love.graphics.setColor(1, 0, 1)
     for i = 1, #spikes, 1 do
-        love.graphics.polygon("fill", 
-                          spikes[i].body:getWorldPoints(spikes[i].shape:getPoints()))
+        love.graphics.polygon("fill", spikes[i].body:getWorldPoints(spikes[i].shape:getPoints()))
     end
 end
 
@@ -21,6 +20,8 @@ function SpikeAttack(fixtureA, fixtureB, contact, player)
         local normal = vector2.new(contact:getNormal())
         if normal.y == 1 then
             player.health = player.health - 1
+            local dashforce = vector2.new(0, -2500)
+            player.body:applyLinearImpulse(dashforce.x, dashforce.y)
         end
     end
 end

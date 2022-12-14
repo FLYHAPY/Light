@@ -14,7 +14,8 @@ function DrawRepairKits(repairkit)
     for i = 1, #repairkit, 1 do
         local currentRepairKit = repairkit[i]
 
-        if currentRepairKit ~= nil then
+
+        if currentRepairKit ~= nil and currentRepairKit.body ~= nil and currentRepairKit.shape ~= nil then
             love.graphics.setColor(1, 0, 0)
             love.graphics.polygon("fill", currentRepairKit.body:getWorldPoints(currentRepairKit.shape:getPoints())) 
         end
@@ -24,10 +25,13 @@ end
 
 function Repairkit_contact(a, b, collision, repairkit, player)
     --if (a:getUserData("kit") and b:getUserData("player")) or (a:getUserData("player") and b:getUserData("kit")) then
+    if player ~= nil and repairkit ~= nil then
         player.health = player.health + 1
         repairkit.disappear = true
         return true
+    end    
     --end
+    return false
 end
 
 -- Seperated The Checking If You Can Destroy From The Actual Body Destruciton For Clarity
@@ -36,14 +40,18 @@ function CanDestroyRepairKit(repairkit)
         return false;
     end
 
-    return repairkit.disappear
+    if repairkit.disappear then return true 
+    else   return repairkit.disappear end
 end
 
 -- Do The Actual Destruction Of The Body
 function DestroyRepairKitBody(repairkit)
 
+--io.write("test\n")
+
     if repairkit ~= nil and repairkit.body ~= nil then
         repairkit.body:destroy()
+        repairkit.body = nil
     end
 
 end
