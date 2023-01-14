@@ -79,12 +79,28 @@ function UpdatePlayer(player, dt)
     local contacts = player.body:getContacts()
     if #contacts == 0 then
         player.onground = false
+        player.collisionnormal = vector2.new(0, 0)
     else
-        for i = 1, #contacts, 1 do
-            local normal = vector2.new(contacts[i]:getNormal())
-            --io.write("X: ", normal.x, " Y:", normal.y, " \n")            
-            if normal.y == 1 then
-                player.onground = true
+        for i = 1, #contacts, 1 do            
+            local fixtureA, fixtureB = contacts[i]:getFixtures()
+            local categoryA = fixtureA:getCategory()
+            local categoryB = fixtureB:getCategory()
+            if (categoryA == 1 and categoryB == 2) then 
+                local normal = vector2.new(contacts[i]:getNormal())
+                if vector2.magnitude(normal) == 1 then
+                    if normal.y == 1 then
+                        player.onground = true
+                    end                 
+                    player.collisionnormal = vector2.new(normal.x, normal.y)
+                end
+            elseif (categoryA == 2 and categoryB == 1) then
+                local normal = vector2.new(contacts[i]:getNormal())
+                if vector2.magnitude(normal) == 1 then
+                    if normal.y == -1 then
+                        player.onground = true
+                    end
+                    player.collisionnormal = vector2.new(-normal.x, -normal.y)
+                end
             end
         end
     end
@@ -135,11 +151,12 @@ end
 
 
  function DrawPlayer(player)
+    local playerposition = vector2.new(player.body:getPosition())
     if player.SSMact == true then
         love.graphics.setColor(1, 1, 1) 
     else  love.graphics.setColor(0, 0, 1)
     end
-    love.graphics.polygon("fill", player.body:getWorldPoints(player.shape:getPoints()))
+    love.graphics.rectangle("fill", 380 - 15, 620 - 30 , 30, 60)
  end
 
 function KeyReleasedPlayer(key, player)

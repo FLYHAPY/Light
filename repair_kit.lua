@@ -54,16 +54,4 @@ function DestroyRepairKitBody(repairkit)
         repairkit.body = nil
     end
 
-end
-
-
---[[ Substituted It With The Above 2 Functions
-function CheckRemove_Kit(repairkit)
-    if repairkit.disappear == true then
-        table.remove(repairkit, 1)
-		if repairkit.body ~= nil then
-			repairkit.body:destroy()
-		end
-    end 
-end
-]]  
+end 
