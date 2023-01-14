@@ -102,12 +102,9 @@ function love.update(dt)
     UpdateAttack(attack, player, dt)
     UpdateSSM(player, attack)
 
-    local playerposition = vector2.new(player.body:getPosition())
     
     if player.restart == true then
         player.died = false
-        playerposition.x = 30
-        playerposition.y = 40
         player.health = 10 
     end
 
@@ -140,6 +137,10 @@ end
         playerposition.y = 40
         player.health = 10
         player.SSM = 0 
+    end
+
+    if player.died == true then
+        player.body:setLinearVelocity(0, 0)
     end
 
 end
@@ -202,6 +203,7 @@ function EndContact(fixtureA, fixtureB, contact)
        (fixtureA:getUserData().tag == "platform" and 
        fixtureB:getUserData().tag == "player") then
         player.onground = false
+        player.damaged = false
         player.collisionnormal = vector2.new(0, 0)
     end
 end

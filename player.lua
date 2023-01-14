@@ -25,13 +25,15 @@ function Player_load(World, x, y)
         player.died = false
         player.restart = false
         player.canopendoor = false
+        player.damaged = false
         return player
 end
 
 function UpdatePlayer(player, dt)
-    local playergravity = vector2.new(0, 2500)
-    player.body:applyForce(playergravity.x, playergravity.y)
-    local playervelocity = vector2.new(player.body:getLinearVelocity())
+    
+        local playergravity = vector2.new(0, 2500)
+        player.body:applyForce(playergravity.x, playergravity.y)
+        local playervelocity = vector2.new(player.body:getLinearVelocity())
 
     if love.keyboard.isDown("right") and player.collisionnormal.x ~= 1 then
         player.body:setLinearVelocity(300, playervelocity.y)
@@ -43,7 +45,7 @@ function UpdatePlayer(player, dt)
         player.body:setLinearVelocity(0, playervelocity.y)
     end
 
-    if love.keyboard.isDown("space") and player.jumped == false and player.onground == true then
+    if love.keyboard.isDown("space") and player.jumped == false and player.onground == true and player.damaged == false then
         local jumpForce = vector2.new(0, -1500)
         player.body:applyLinearImpulse(jumpForce.x, jumpForce.y)
         player.jumped = true
@@ -107,7 +109,6 @@ function UpdatePlayer(player, dt)
     if player.health <=0 then
         player.died = true
     end
-
     --io.write(player.SSMtimer,  " \n")
 end
 
@@ -115,7 +116,7 @@ end
 function KeyPressedSSM(key, player, attack)
     if key == "e" and player.SSM >= 10 and player.SSMtimer >= 20 then
        player.SSMact = true
-       attack.damage = attack.damage * 2
+       attack.damage = attack.damage * 3
        player.health = player.health * 2
     end
 end
@@ -124,6 +125,7 @@ end
 function BeginContactPlayer(fixtureA, fixtureB, contact, player)
     if (fixtureA:getUserData().tag == "player" and fixtureB:getUserData().tag == "platform") or (fixtureA:getUserData().tag == "platform" and fixtureB:getUserData().tag == "player") then
         local normal = vector2.new(contact:getNormal())
+        player.damaged = false
         if normal.y == 1 then
             player.onground = true
         end
@@ -174,6 +176,8 @@ function DrawAttack(attack, player)
 end
 
 function StartAttack(attack, player)
+    if player.died == true then return end
+    
     if attack.timer <= 0.25 then
         player.attacks = true
         attack.body:setActive(true)
@@ -181,6 +185,7 @@ function StartAttack(attack, player)
 end
 
 function UpdateAttack(attack, player, dt)
+    if player.died == true then return end
     local posx, posy = player.body:getPosition()
     if player.dir == 1 then
         posx = posx + 20
@@ -201,6 +206,7 @@ function UpdateAttack(attack, player, dt)
 end
 
 function AttackReellease(key, attack, player)
+    if player.died == true then return end
     if key == "f" then
         attack.timer = 0
         player.attacks = false

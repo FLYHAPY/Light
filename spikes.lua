@@ -22,6 +22,7 @@ function SpikeAttack(fixtureA, fixtureB, contact, player)
             player.health = player.health - 1
             local dashforce = vector2.new(0, -1000)
             player.body:setLinearVelocity(0, 0)
+            player.damaged = true
             player.body:applyLinearImpulse(dashforce.x, dashforce.y)
         end
     end
