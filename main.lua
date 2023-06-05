@@ -7,6 +7,8 @@ require "spikes"
 require "key"
 require "door"
 require "Gaim"
+require "ui"
+require "generator"
 
 local mainMenu
 local sti = require "sti"
@@ -18,6 +20,8 @@ local attack
 local spikes
 local key
 local door
+local ui
+local generator
 
 function love.load() 
     mainMenu = LoadMAINMenu()
@@ -32,36 +36,73 @@ function love.load()
 
     attack = LoadAttack(World, player)
 
+    generator = Creategenerator(World, 7552, 608, 128, 64)
+
+    ui = LoadUI()
 
 
 
-    door = Createdoor(World, -500, 300, 100, 100)
+
+
+    door = {}
+    door[1] = Createdoor(World, 4704, 576, 64, 128)
     
 
 
-    --[[level1 = {}
-    level1[1] = CreatePlatform(World, 0, 600, 2000, 50)
-    level1[2] = CreatePlatform(World, -900, 560, 30, 80)
-    level1[3] = CreatePlatform(World, -800, 550, 30, 130)
-    level1[4] = CreatePlatform(World, -700, 520, 30, 200)
-    level1[5] = CreatePlatform(World, -300, 580, 30, 20)
-    level1[6] = CreatePlatform(World, 100, 580, 30, 20)
-    level1[7] = CreatePlatform(World, 500, 580, 30, 20)--]]
     repairKits = {}
+    repairKits[1] = Createkit(World, 0, 0, 64, 64)
+    repairKits[2] = Createkit(World, 0, 0, 64, 64)
+    repairKits[3] = Createkit(World, 0, 0, 64, 64)
+    repairKits[4] = Createkit(World, 0, 0, 64, 64)
+    
     enemy1 = {}
-    spikes = {}
-    key = {}
+    enemy1[1] = Load_enemy(World, 0, 0)
+    enemy1[2] = Load_enemy(World, 0, 0)
+    enemy1[3] = Load_enemy(World, 0, 0)
+    enemy1[4] = Load_enemy(World, 0, 0)
+    enemy1[5] = Load_enemy(World, 0, 0)
+    enemy1[6] = Load_enemy(World, 0, 0)
+    enemy1[7] = Load_enemy(World, 0, 0)
+    enemy1[8] = Load_enemy(World, 0, 0)
+    enemy1[9] = Load_enemy(World, 0, 0)
+    enemy1[10] = Load_enemy(World, 0, 0)
+    enemy1[11] = Load_enemy(World, 0, 0)
+    
 
-    if  mainMenu.game_state == "menu" then 
-          key = Createkey(World, 200, 500, 20, 20) 
-    end
+    
+    spikes = {}
+    --5696, 1344
+    spikes[1] = Createspikes(World, 2336, 1952, 64, 64)
+    spikes[2] = Createspikes(World, 2400, 1952, 64, 64)
+    spikes[3] = Createspikes(World, 2464, 1952, 64, 64)
+    spikes[4] = Createspikes(World, 2528, 1952, 64, 64)
+    spikes[5] = Createspikes(World, 2592, 1952, 64, 64)
+    spikes[6] = Createspikes(World, 5728, 1376, 64, 64)
+    spikes[7] = Createspikes(World, 5792, 1376, 64, 64)
+    spikes[8] = Createspikes(World, 5856, 1376, 64, 64)
+    spikes[9] = Createspikes(World, 5920, 1376, 64, 64)
+    spikes[10] = Createspikes(World, 5984, 1376, 64, 64)
+    spikes[11] = Createspikes(World, 6048, 1376, 64, 64)
+    spikes[12] = Createspikes(World, 6112, 1376, 64, 64)
+    spikes[13] = Createspikes(World, 6176, 1376, 64, 64)
+    spikes[14] = Createspikes(World, 6240, 1376, 64, 64)
+    spikes[15] = Createspikes(World, 6304, 1376, 64, 64)
+    spikes[16] = Createspikes(World, 6368, 1376, 64, 64)
+    spikes[17] = Createspikes(World, 6432, 1376, 64, 64)
+    spikes[18] = Createspikes(World, 6496, 1376, 64, 64)
+    spikes[19] = Createspikes(World, 6560, 1376, 64, 64)
+
+
+    
+    key = {}
+    key[1] = Createkey(World, 5280, 2016, 64, 64) 
+
     
 
 
 end
 
 function love.draw()
-    
     
     
     if mainMenu.game_state == 'menu' then
@@ -71,8 +112,14 @@ function love.draw()
             Draw_how_to_play(mainMenu)
         elseif mainMenu.game_state == 'paused' then
             Draw_pause(mainMenu)
+        elseif mainMenu.game_state == "lose" then
+            DrawLose(mainMenu)
+        elseif mainMenu.game_state == "win" then
+            DrawWin(mainMenu)
     
       elseif mainMenu.game_state == 'game' then
+        
+        love.graphics.draw(mainMenu.gameback)
         local playerposition = vector2.new(player.body:getPosition())
         DrawPlayer(player)
         love.graphics.setColor(1, 1, 1)
@@ -85,31 +132,18 @@ function love.draw()
         love.graphics.push()
         love.graphics.translate(-playerposition.x  + 380, -playerposition.y + 620)
 
-            Drawdoor(door, player)
+            Drawdoor(door)
             DrawLevel(level1)
             DrawRepairKits(repairKits)
             DrawEnemy(enemy1)
             DrawAttack(attack, player)
             Drawspikes(spikes)
             Drawkey(key)
+            DrawGenerator(generator)
         
         love.graphics.pop()
-    
-        love.graphics.setColor(0.5, 0.5, 0) 
-        love.graphics.print("Health:".. player.health, 10, 10, 0, 1.5, 1.5)
-        love.graphics.setColor(1, 1, 1) 
-        love.graphics.print("SSM Gauge: "..player.SSM, 10, 28, 0, 1.5, 1.5)
-        love.graphics.print("SSM Gauge Timer: "..math.floor(player.SSMtimer), 10, 45, 0, 1.5, 1.5)
-        love.graphics.setDefaultFilter("nearest")
-    
-        if player.died == true then
-            love.graphics.setColor(1, 1, 1) 
-            love.graphics.print("Game Over", 500, 300, 0, 1.5, 1.5)
-        end
-    
-        if player.canopendoor == true then
-            love.graphics.print("Key Colected", 1000, 20, 0, 1.5, 1.5)
-        end
+        DrawUI(player, ui)
+
     
     end
 end
@@ -119,7 +153,7 @@ function love.update(dt)
 
     LoadGame(mainMenu, player, level1, repairKits, enemy1, attack, spikes, key, door, dt)   
     DestroyGame(mainMenu, player, level1, repairKits, enemy1, attack, spikes, key, door)
-    UpdateMenu(mainMenu)
+    UpdateMenu(mainMenu, dt)
 
 if mainMenu.game_state == 'game' then 
     if player.died ==  false then
@@ -151,6 +185,11 @@ if mainMenu.game_state == 'game' then
             DestroykeyBody(key[i])
         end
     end
+    for i = 1, #door, 1 do
+        if CanDestroydoor(door[i], player) then
+            DestroydoorBody(door[i], player)
+        end
+    end
 end
 
 
@@ -167,6 +206,9 @@ end
 
     if player.died == true then
         player.body:setLinearVelocity(0, 0)
+    end
+    if player.died == true then
+        mainMenu.game_state = "lose"
     end
 end
 end
@@ -219,6 +261,22 @@ function BeginContact(a, b, collision)
 
 	end
 
+     --collision door
+    
+    if (IsPlayerCollidingWithdoor(a, b)) then
+       --io.write ("\n"..a:getUserData().." colliding with "..b:getUserData().."\n")
+    
+        local doorFixture
+        if a:getUserData().tag == "key" then
+            doorFixture = a 
+        else doorFixture = b end
+            
+        local door = FinddoorFromBody(doorFixture)
+            
+        Door_contact(a, b, collision, door, player)
+    
+    end
+
     --collision with spikes
 
     SpikeAttack(a, b, collision, player)
@@ -229,22 +287,26 @@ function BeginContact(a, b, collision)
         AttackPlayer(a, b, collision, enemy1, player)
     end
 
-    BeginContactEnemy(a, b, collision)
+    --BeginContactEnemy(a, b, collision)
 
 
-    BeginContactdoor(a, b, collision, door, player, key)
-
-    BeginContactPlayer(a, b, collision, player)
+    BeginContactGenerator(a, b, mainMenu)
 end
 
 function EndContact(fixtureA, fixtureB, contact)
     if (fixtureA:getUserData().tag == "player" and 
-       fixtureB:getUserData().tag == "platform") or 
-       (fixtureA:getUserData().tag == "platform" and 
+       fixtureB:getUserData().tag == "enemy") or 
+       (fixtureA:getUserData().tag == "enemy" and 
        fixtureB:getUserData().tag == "player") then
-        player.onground = false
         player.damaged = false
-        player.collisionnormal = vector2.new(0, 0)
+        player.timer = 0
+    end
+    if (fixtureA:getUserData().tag == "player" and 
+       fixtureB:getUserData().tag == "door") or 
+       (fixtureA:getUserData().tag == "door" and 
+       fixtureB:getUserData().tag == "player") then
+        player.contactdoor = false
+        io.write("yes")
     end
 end
 
@@ -276,13 +338,15 @@ function love.keypressed(key)
             StartAttack(attack, player)
         end
         KeyPressedSSM(key, player, attack)
-        if key == "r" and player.died == true then
-            player.restart = true
-        end
     
       elseif  mainMenu.game_state == 'paused' then
         Pause_keypressed(key, mainMenu)
-      end
+    
+    elseif  mainMenu.game_state == 'lose' then
+        Lose_keypressed(key, mainMenu)
+    elseif  mainMenu.game_state == 'win' then
+        Win_keypressed(key, mainMenu)
+    end
 end
 
 --repairkit
@@ -374,4 +438,26 @@ function FinddestroyedenemyFromBody()
     
     return nil
     
+end
+
+--door
+
+function IsPlayerCollidingWithdoor(bodyA, bodyB)
+
+    return (bodyA:getUserData().tag == "door" and bodyB:getUserData().tag == "player") or (bodyA:getUserData().tag == "player" and bodyB:getUserData().tag == "door")
+    
+end
+    
+function FinddoorFromBody(Fixture)
+    
+    for i = 1, #door, 1 do
+        
+        if door[i] ~= nil and door[i].fixture == Fixture then
+            return door[i]
+        end
+    
     end
+    
+    return nil
+    
+end

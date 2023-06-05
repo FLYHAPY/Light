@@ -5,13 +5,15 @@ function Createspikes(world, x, y, width, height)
     spikes.fixture = love.physics.newFixture(spikes.body, spikes.shape, 1)
     spikes.tag = "spikes"
     spikes.fixture:setUserData(spikes)
+    spikes.sprite = love.graphics.newImage("assets/.png/Spike.png")
     return spikes
 end
 
 function Drawspikes(spikes)
-    love.graphics.setColor(1, 0, 1)
+    love.graphics.setColor(1, 1, 1)
     for i = 1, #spikes, 1 do
-        love.graphics.polygon("fill", spikes[i].body:getWorldPoints(spikes[i].shape:getPoints()))
+        local spikesposition = vector2.new(spikes[i].body:getPosition())
+        love.graphics.draw(spikes[i].sprite, spikesposition.x - 32, spikesposition.y - 32)
     end
 end
 
@@ -20,10 +22,11 @@ function SpikeAttack(fixtureA, fixtureB, contact, player)
         local normal = vector2.new(contact:getNormal())
         if normal.y == 1 then
             player.health = player.health - 1
-            local dashforce = vector2.new(0, -1000)
+            love.audio.play(player.damagedsound)
+            local spikeforce = vector2.new(0, -2000)
             player.body:setLinearVelocity(0, 0)
-            player.damaged = true
-            player.body:applyLinearImpulse(dashforce.x, dashforce.y)
+            player.spikedamage = true
+            player.body:applyLinearImpulse(spikeforce.x, spikeforce.y)
         end
     end
 end

@@ -7,47 +7,58 @@ function Createdoor(world, x, y, width, height)
     door.fixture:setUserData(door)
     door.collected = false
     door.fixture:setSensor(false)
+    door.disappear = false
     door.open = false
+    door.collected = false
+    door.contact = false
+    door.sprite = love.graphics.newImage("assets/.png/DoorSprite.png")
     return door
 end
 
-function Drawdoor(door, player)
-    if door ~= nil and door.body ~= nil and door.shape ~= nil and door.open == false then
-        love.graphics.setColor(1, 1, 1) 
-        love.graphics.polygon("fill", door.body:getWorldPoints(door.shape:getPoints()))
+function Drawdoor(door)
+    for i = 1, #door, 1 do
+       if door[1] ~= nil and door[1].body ~= nil and door[1].shape ~= nil then
+            local doorposition = vector2.new(door[1].body:getPosition())
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.draw(door[1].sprite, doorposition.x - 32, doorposition.y - 64) 
+        end
     end
 end
 
-function BeginContactdoor(fixtureA, fixtureB, contact, door, player, key)
-    if player.canopendoor == true and ((fixtureA:getUserData().tag == "door" and fixtureB:getUserData().tag == "player") or (fixtureA:getUserData().tag == "player" and fixtureB:getUserData().tag == "door")) then
-        player.canopendoor = false
-        key.collected = false
-        door.open = true
+
+function Door_contact(a, b, collision, door, player)
+    --if (a:getUserData("kit") and b:getUserData("player")) or (a:getUserData("player") and b:getUserData("kit")) then
+    if player ~= nil and door ~= nil then
+        door.disappear = true
+        door.contact = true
+        player.contactdoor = true
+        love.audio.play(player.PickUpsound)
+        player.keycollected = false
+        return true
+    end    
+    --end
+    return false
+end
+
+-- Seperated The Checking If You Can Destroy From The Actual Body Destruciton For Clarity
+function CanDestroydoor(door, player)
+    if door == nil then
+        return false;
+    end
+
+    if door.disappear  then return true 
+    else   return door.disappear end
+end
+
+-- Do The Actual Destruction Of The Body
+function DestroydoorBody(door, player)
+
+    if player.contactdoor == false then return end
+    if door ~= nil and door.body ~= nil and player.canopendoor  == true and door.contact == true and player.contactdoor == true    then
         door.body:destroy()
+        door.body = nil
+        door.shape:release()
+        door.shape = nil
     end
-end
 
-
-function CreateSpecialspecialdoor(world, x, y, width, height)
-    local specialdoor = {}
-    specialdoor.body = love.physics.newBody(world, x, y, "static")
-    specialdoor.shape = love.physics.newRectangleShape(width, height)
-    specialdoor.fixture = love.physics.newFixture(specialdoor.body, specialdoor.shape, 1)
-    specialdoor.tag = "specialdoor"
-    specialdoor.fixture:setUserData(specialdoor)
-    specialdoor.collected = false
-    specialdoor.fixture:setSensor(false)
-    specialdoor.open = false
-    return specialdoor
-end
-
-function Drawspecialdoor(specialdoor)
-    love.graphics.setColor(1, 0.5, 0.1) 
-    love.graphics.polygon("fill", specialdoor.body:getWorldPoints(specialdoor.shape:getPoints()))
-end
-
-function BeginContactspecialdoor(fixtureA, fixtureB, contact, player)
-    if ((fixtureA:getUserData().tag == "specialdoor" and fixtureB:getUserData().tag == "player") or (fixtureA:getUserData().tag == "player" and fixtureB:getUserData().tag == "specialdoor")) then
-        player.body:setPosition(0, 0)
-    end
 end

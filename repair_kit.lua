@@ -7,10 +7,23 @@ function Createkit(World, x, y, width, height)
     repairkit.fixture:setUserData(repairkit)
     repairkit.fixture:setSensor(true)
     repairkit.disappear = false
+    repairkit.sprite = love.graphics.newImage("assets/.png/RepairKitSprite.png")
     return repairkit
 end
 
 function DrawRepairKits(repairkit)
+    for i = 1, #repairkit, 1 do
+
+
+        if repairkit[i] ~= nil and repairkit[i].body ~= nil and repairkit[i].shape ~= nil then
+            local repairkitposition = vector2.new(repairkit[i].body:getPosition())
+            love.graphics.setColor(1, 0, 0)
+            love.graphics.draw(repairkit[i].sprite , repairkitposition.x - 32, repairkitposition.y - 32 ) 
+        end
+    end
+end
+
+function DrawdsRepairKits(repairkit)
     for i = 1, #repairkit, 1 do
         local currentRepairKit = repairkit[i]
 
@@ -28,6 +41,7 @@ function Repairkit_contact(a, b, collision, repairkit, player)
     if player ~= nil and repairkit ~= nil then
         player.health = player.health + 1
         repairkit.disappear = true
+        love.audio.play(player.PickUpsound)
         return true
     end    
     --end
@@ -52,6 +66,8 @@ function DestroyRepairKitBody(repairkit)
     if repairkit ~= nil and repairkit.body ~= nil then
         repairkit.body:destroy()
         repairkit.body = nil
+        repairkit.shape:release()
+        repairkit.shape = nil
     end
 
 end 

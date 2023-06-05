@@ -8,17 +8,16 @@ function Createkey(world, x, y, width, height)
     key.collected = false
     key.fixture:setSensor(true)
     key.disappear = false
+    key.sprite = love.graphics.newImage("assets/.png/KeySprite.png")
     return key
 end
 
 function Drawkey(key)
     for i = 1, #key, 1 do
-        local currentkey = key[i]
-
-
-        if currentkey ~= nil and currentkey.body ~= nil and currentkey.shape ~= nil then
-            love.graphics.setColor(1, 0, 0)
-            love.graphics.polygon("fill", currentkey.body:getWorldPoints(currentkey.shape:getPoints())) 
+     if key[1] ~= nil and key[1].body ~= nil and key[1].shape ~= nil then
+            local keyposition = vector2.new(key[1].body:getPosition())
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.draw(key[1].sprite, keyposition.x - 32, keyposition.y - 32) 
         end
     end
 end
@@ -29,6 +28,8 @@ function Key_contact(a, b, collision, key, player)
     if player ~= nil and key ~= nil then
         player.canopendoor = true
         key.disappear = true
+        love.audio.play(player.PickUpsound)
+        player.keycollected = true
         return true
     end    
     --end
@@ -53,6 +54,8 @@ function DestroykeyBody(key)
     if key ~= nil and key.body ~= nil then
         key.body:destroy()
         key.body = nil
+        key.shape:release()
+        key.shape = nil
     end
 
 end
